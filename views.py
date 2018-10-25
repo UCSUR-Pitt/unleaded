@@ -28,7 +28,7 @@ def handle_submission(request):
         if step_k in qd:
             steps_dict[step_k] = qd[step_k]
 
-    pr = PipeRecord(home=home, qd = json.dumps(qd), **steps_dict)
+    pr = PipeRecord(home=home, full_submission = json.dumps(qd), **steps_dict)
     pr.save()
 
     steps_dict['home'] = home
