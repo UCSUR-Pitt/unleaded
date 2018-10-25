@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+import json
 from .models import PipeRecord
 
 def handle_submission(request):
@@ -25,7 +26,7 @@ def handle_submission(request):
         if step_k in qd:
             steps_dict[step_k] = qd[step_k]
 
-    pr = PipeRecord(home=home, **steps_dict)
+    pr = PipeRecord(home=home, qd = json.dumps(qd), **steps_dict)
     pr.save()
 
     steps_dict['home'] = home

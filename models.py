@@ -11,6 +11,7 @@ class PipeRecord(models.Model):
     step4 = models.CharField(max_length=100)
     step5 = models.CharField(max_length=100)
     step6 = models.CharField(max_length=100)
+    qd = models.CharField(max_length=9999,default='')
 
     class Meta:
         verbose_name = "submission"
