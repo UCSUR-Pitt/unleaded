@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
+# from django.views.decorators.csrf import csrf_exemp
 import json
 from .models import PipeRecord
 
+# @csrf_exempt
 def handle_submission(request):
     """Accept a GET or POST request, parse the keys, and file the contents away in the database."""
     # To increase robustness, use the following to get all model keys
