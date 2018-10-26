@@ -11,6 +11,18 @@ class PipeRecord(models.Model):
     step4 = models.CharField(max_length=100)
     step5 = models.CharField(max_length=100)
     step6 = models.CharField(max_length=100)
+    email = models.CharField(max_length=300,default='')
+    share = models.CharField(max_length=100,default='') # values include "teamonly"
+    wall_floor = models.CharField(max_length=10,default='') # Does your pipe come through the wall or floor?
+    own_rent = models.CharField(max_length=10,default='') # Are you a homeowner or renter? values include "own"
+    units = models.CharField(max_length=20,default='') # Are you a homeowner or renter? values include "-1"
+    income = models.CharField(max_length=20,default='') # values include "0"
+    children = models.CharField(max_length=20,default='') # values include "0"
+    address1 = models.CharField(max_length=100,default='')
+    address2 = models.CharField(max_length=100,default='')
+    city = models.CharField(max_length=100,default='')
+    state = models.CharField(max_length=3,default='')
+    zip_code = models.CharField(max_length=10,default='') # Allowing 10 characters to allow for a ZIP+4 code.
     full_submission = models.CharField(max_length=9999,default='') # The complete raw text
     # passed from the front end.
 

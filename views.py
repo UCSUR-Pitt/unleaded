@@ -28,17 +28,31 @@ def handle_submission(request):
         if step_k in qd:
             steps_dict[step_k] = qd[step_k]
 
-    pr = PipeRecord(home=home, full_submission = json.dumps(qd), **steps_dict)
+    other_dict = {}
+    other_dict['email'] = qd['email']
+    other_dict['share'] = qd['share']
+    other_dict['wall_floor'] = qd['wallfloor']
+    other_dict['own_rent'] = qd['ownrent']
+    other_dict['units'] = qd['units']
+    other_dict['income'] = qd['income']
+    other_dict['children'] = qd['children']
+    other_dict['address1'] = qd['address1']
+    other_dict['address2'] = qd['address2']
+    other_dict['city'] = qd['city']
+    other_dict['state'] = qd['state']
+    other_dict['zip_code'] = qd['zip']
+
+    pr = PipeRecord(home=home, full_submission = json.dumps(qd), **steps_dict, **other_dict)
     pr.save()
 
     steps_dict['home'] = home
     response_data = {
         "success": True,
         "payload": {
-            "parameters": steps_dict 
+            "parameters": steps_dict
         }
     }
-    
+
     return JsonResponse(response_data)
 
 def index(request):
