@@ -45,11 +45,13 @@ def handle_submission(request):
     pr = PipeRecord(home=home, full_submission = json.dumps(qd), **steps_dict, **other_dict)
     pr.save()
 
-    steps_dict['home'] = home
+    parameters_dict = { **steps_dict, 'home': home, **other_dict } # These are the
+    # parameters that have been explicitly recognized and individually added to the
+    # database.
     response_data = {
         "success": True,
         "payload": {
-            "parameters": steps_dict
+            "parameters": parameters_dict
         }
     }
 
