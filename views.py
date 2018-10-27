@@ -20,27 +20,27 @@ def handle_submission(request):
         }
         return JsonResponse(response_data)
 
-    home = qd['home']
+    home = qd.get('home', '')
 
     steps_dict = {}
     for k in range(1,7):
         step_k = 'step{}'.format(k)
         if step_k in qd:
-            steps_dict[step_k] = qd[step_k]
+            steps_dict[step_k] = qd.get(step_k, '')
 
     other_dict = {}
-    other_dict['email'] = qd['email']
-    other_dict['share'] = qd['share']
-    other_dict['wall_floor'] = qd['wallfloor']
-    other_dict['own_rent'] = qd['ownrent']
-    other_dict['units'] = qd['units']
-    other_dict['income'] = qd['income']
-    other_dict['children'] = qd['children']
-    other_dict['address1'] = qd['address1']
-    other_dict['address2'] = qd['address2']
-    other_dict['city'] = qd['city']
-    other_dict['state'] = qd['state']
-    other_dict['zip_code'] = qd['zip']
+    other_dict['email'] = qd.get('email', '')
+    other_dict['share'] = qd.get('share', '')
+    other_dict['wall_floor'] = qd.get('wallfloor', '')
+    other_dict['own_rent'] = qd.get('ownrent', '')
+    other_dict['units'] = qd.get('units', '')
+    other_dict['income'] = qd.get('income', '')
+    other_dict['children'] = qd.get('children', '')
+    other_dict['address1'] = qd.get('address1', '')
+    other_dict['address2'] = qd.get('address2', '')
+    other_dict['city'] = qd.get('city', '')
+    other_dict['state'] = qd.get('state', '')
+    other_dict['zip_code'] = qd.get('zip', '')
 
     pr = PipeRecord(home=home, full_submission = json.dumps(qd), **steps_dict, **other_dict)
     pr.save()
