@@ -16,7 +16,7 @@ class PipeRecord(models.Model):
     wall_floor = models.CharField(max_length=10,default='') # Does your pipe come through the wall or floor?
     own_rent = models.CharField(max_length=10,default='') # Are you a homeowner or renter? values include "own"
     units = models.CharField(max_length=20,default='') # Are you a homeowner or renter? values include "-1"
-    income = models.CharField(max_length=20,default='') # values include "0"
+    income = models.CharField(max_length=30,default='') # values include "0"
     children = models.CharField(max_length=20,default='') # values include "0"
     address1 = models.CharField(max_length=100,default='')
     address2 = models.CharField(max_length=100,default='')
