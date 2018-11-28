@@ -15,6 +15,7 @@ class PipeRecord(models.Model):
     share = models.CharField(max_length=100,default='') # values include "teamonly"
     wall_floor = models.CharField(max_length=10,default='') # Does your pipe come through the wall or floor?
     own_rent = models.CharField(max_length=10,default='') # Are you a homeowner or renter? values include "own"
+    previously_tested = models.CharField(max_length=30,default='') # Have you had your water tested for lead? values include "yes-nolead"
     units = models.CharField(max_length=20,default='') # Are you a homeowner or renter? values include "-1"
     income = models.CharField(max_length=30,default='') # values include "0"
     children = models.CharField(max_length=20,default='') # values include "0"

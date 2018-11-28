@@ -33,6 +33,7 @@ def handle_submission(request):
     other_dict['share'] = qd.get('share', '')
     other_dict['wall_floor'] = qd.get('wallfloor', '')
     other_dict['own_rent'] = qd.get('ownrent', '')
+    other_dict['previously_tested'] = qd.get('testedbefore', '')
     other_dict['units'] = qd.get('units', '')
     other_dict['income'] = qd.get('income', '')
     other_dict['children'] = qd.get('children', '')
