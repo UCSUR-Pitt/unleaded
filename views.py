@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
 # from django.views.decorators.csrf import csrf_exemp
-import json
+import json, csv
 from .models import PipeRecord
 
 # @csrf_exempt
@@ -57,6 +57,24 @@ def handle_submission(request):
     }
 
     return JsonResponse(response_data)
+
+def extract_as_csv(request):
+    if not request.user.is_authenticated():
+        return redirect('%s?next=%s' % ('/admin/login/', request.path))
+
+    meta = PipeRecord._meta
+    field_names = [field.name for field in meta.fields]
+    queryset = PipeRecord.objects.all()
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+    writer = csv.writer(response)
+
+    writer.writerow(field_names)
+    for obj in queryset:
+        row = writer.writerow([getattr(obj, field) for field in field_names])
+
+    return response
 
 def index(request):
     return HttpResponse("Welcome to the index!")
