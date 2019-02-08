@@ -70,9 +70,25 @@ def extract_as_csv(request):
     response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
     writer = csv.writer(response)
 
-    writer.writerow(field_names)
+    field_names_extended = list(field_names)
+    extra_fields = ['step7', 'step8']
+    for f in extra_fields:
+        if f not in field_names:
+            field_names_extended.append(f)
+
+    writer.writerow(field_names_extended)
     for obj in queryset:
-        row = writer.writerow([getattr(obj, field) for field in field_names])
+        fields_to_write = [getattr(obj, field) for field in field_names]
+        for f in extra_fields:
+            if f not in field_names:
+                full_submission_json = getattr(obj, 'full_submission')
+                if full_submission_json in [None, '']:
+                    value = ''
+                else:
+                    value = full_submission[f] if f in value else ''
+                fields_to_write.append(value)
+
+        row = writer.writerow(fields_to_write)
 
     return response
 
