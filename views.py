@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 # from django.views.decorators.csrf import csrf_exemp
 import json, csv
@@ -59,7 +59,11 @@ def handle_submission(request):
     return JsonResponse(response_data)
 
 def extract_as_csv(request):
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated(): # In Django 2.0, this has changed to "if not request.user.is_authenticated:"
+        return redirect('%s?next=%s' % ('/admin/login/', request.path))
+
+    username = request.user.username
+    if username not in ['blackhurst', 'david', 'sds25']:
         return redirect('%s?next=%s' % ('/admin/login/', request.path))
 
     meta = PipeRecord._meta
