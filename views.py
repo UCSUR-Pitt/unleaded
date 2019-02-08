@@ -86,7 +86,7 @@ def extract_as_csv(request):
                     value = ''
                 else:
                     full_submission = json.loads(full_submission_json)
-                    value = full_submission[f] if f in value else ''
+                    value = full_submission[f] if f in full_submission else ''
                 fields_to_write.append(value)
 
         row = writer.writerow(fields_to_write)
