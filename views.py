@@ -85,6 +85,7 @@ def extract_as_csv(request):
                 if full_submission_json in [None, '']:
                     value = ''
                 else:
+                    full_submission = json.loads(full_submission_json)
                     value = full_submission[f] if f in value else ''
                 fields_to_write.append(value)
 
