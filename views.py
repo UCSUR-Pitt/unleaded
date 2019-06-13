@@ -1,7 +1,8 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-import json, csv
+from django.core.files.base import ContentFile
+import json, csv, base64
 from .models import PipeRecord
 
 @csrf_exempt
@@ -43,7 +44,18 @@ def handle_submission(request):
     other_dict['state'] = qd.get('state', '')
     other_dict['zip_code'] = qd.get('zip', '')
 
-    pr = PipeRecord(home=home, full_submission = json.dumps(qd), **steps_dict, **other_dict)
+    # Parse the b64-encoded image in the rquest and make a file to store in the model
+    b64_img_str = qd.get('image', None)  
+    image_file = None
+    if b64_img_str:
+        [fmt, img_str] = b64_img_str.split(';base64,')
+        ext = fmt.split('/')[-1]
+        image_file = ContentFile(base64.b64decode(img_str), name='temp.{}'.format(ext))
+        
+    _items = qd.items()
+    full_sub = {k:v for (k,v) in _items if k != 'image'}  # copy of qd but without huge img string
+
+    pr = PipeRecord(home=home, full_submission = json.dumps(full_sub), image=image_file, **steps_dict, **other_dict)
     pr.save()
 
     parameters_dict = { **steps_dict, 'home': home, **other_dict } # These are the

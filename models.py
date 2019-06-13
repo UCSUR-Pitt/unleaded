@@ -24,6 +24,7 @@ class PipeRecord(models.Model):
     city = models.CharField(max_length=100,default='')
     state = models.CharField(max_length=3,default='')
     zip_code = models.CharField(max_length=10,default='') # Allowing 10 characters to allow for a ZIP+4 code.
+    image = models.FileField(upload_to='uploads/%Y/%m/%d/', blank=True, null=True)
     full_submission = models.CharField(max_length=9999,default='') # The complete raw text
     # passed from the front end.
 
