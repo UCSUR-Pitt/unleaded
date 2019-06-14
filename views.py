@@ -3,13 +3,14 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.files.base import ContentFile
 import json, csv, base64
-from .models import PipeRecord
+from .models import PipeRecord, PipePicture
+
 
 @csrf_exempt
 def handle_submission(request):
     """Accept a GET or POST request, parse the keys, and file the contents away in the database."""
     # To increase robustness, use the following to get all model keys
-        # myproject.myapp.models.MyModel._meta.get_all_field_names()
+    # myproject.myapp.models.MyModel._meta.get_all_field_names()
     # then strip out created_at and iterate over the results.
     if request.method == 'GET':
         qd = request.GET
@@ -17,14 +18,15 @@ def handle_submission(request):
         qd = request.POST
     else:
         response_data = {"success": False,
-                "message": "Unable to parse a {} request.".format(request.method)
-        }
+                         "message": "Unable to parse a {} request.".format(
+                             request.method)
+                         }
         return JsonResponse(response_data)
 
     home = qd.get('home', '')
 
     steps_dict = {}
-    for k in range(1,7):
+    for k in range(1, 7):
         step_k = 'step{}'.format(k)
         if step_k in qd:
             steps_dict[step_k] = qd.get(step_k, '')
@@ -44,21 +46,30 @@ def handle_submission(request):
     other_dict['state'] = qd.get('state', '')
     other_dict['zip_code'] = qd.get('zip', '')
 
-    # Parse the b64-encoded image in the rquest and make a file to store in the model
-    b64_img_str = qd.get('image', None)  
-    image_file = None
-    if b64_img_str:
-        [fmt, img_str] = b64_img_str.split(';base64,')
-        ext = fmt.split('/')[-1]
-        image_file = ContentFile(base64.b64decode(img_str), name='temp.{}'.format(ext))
-        
-    _items = qd.items()
-    full_sub = {k:v for (k,v) in _items if k != 'image'}  # copy of qd but without huge img string
+    image_id = qd.get('image', None)
+    if image_id:
+        other_dict['linked_image'] = PipePicture.objects.get(pk=int(image_id))
+    else:
+        other_dict['linked_image'] = None
 
-    pr = PipeRecord(home=home, full_submission = json.dumps(full_sub), image=image_file, **steps_dict, **other_dict)
+    pr = PipeRecord(
+        home=home,
+        full_submission=json.dumps(qd),
+        **steps_dict,
+        **other_dict
+    )
+
     pr.save()
 
-    parameters_dict = { **steps_dict, 'home': home, **other_dict } # These are the
+
+    # copy other_dict but without the linked model
+    # since it cant serialize that lazily
+    ser_other_dict = {k: v for (k, v) in other_dict.items() if
+                k != 'linked_image'}  # copy of qd but without huge img string
+
+
+    parameters_dict = {**steps_dict, 'home': home,
+                       **ser_other_dict}  # These are the
     # parameters that have been explicitly recognized and individually added to the
     # database.
     response_data = {
@@ -70,8 +81,45 @@ def handle_submission(request):
 
     return JsonResponse(response_data)
 
+
+@csrf_exempt
+def submit_picture(request):
+    """ Handles submission of picture data """
+    if request.method not in ('POST',):
+        return JsonResponse({
+            "success": False,
+            "message": "Unable to parse a {} request. POST method only.".format(
+                request.method)
+        })
+
+    if 'image' not in request.POST:
+        return JsonResponse({
+            "success": False,
+            "message": "Request body must contain 'image' field"
+        })
+
+    b64_img_str = request.POST.get('image', None)
+    if b64_img_str:
+        [fmt, img_str] = b64_img_str.split(';base64,')
+        ext = fmt.split('/')[-1]
+        image_file = ContentFile(base64.b64decode(img_str),
+                                 name='temp.{}'.format(ext))
+    else:
+        return JsonResponse({
+            "success": False,
+            "message": "Image data was not uploaded or is empty."
+        })
+
+    pp = PipePicture(image=image_file)
+    pp.save()
+    return JsonResponse({
+        "success": True,
+        "picture_id": pp.id,
+    })
+
+
 def extract_as_csv(request):
-    if not request.user.is_authenticated(): # In Django 2.0, this has changed to "if not request.user.is_authenticated:"
+    if not request.user.is_authenticated():  # In Django 2.0, this has changed to "if not request.user.is_authenticated:"
         return redirect('%s?next=%s' % ('/admin/login/', request.path))
 
     username = request.user.username
@@ -83,7 +131,8 @@ def extract_as_csv(request):
     queryset = PipeRecord.objects.all()
 
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(meta)
+    response['Content-Disposition'] = 'attachment; filename={}.csv'.format(
+        meta)
     writer = csv.writer(response)
 
     field_names_extended = list(field_names)
@@ -108,6 +157,7 @@ def extract_as_csv(request):
         row = writer.writerow(fields_to_write)
 
     return response
+
 
 def index(request):
     return HttpResponse("Welcome to the index!")
